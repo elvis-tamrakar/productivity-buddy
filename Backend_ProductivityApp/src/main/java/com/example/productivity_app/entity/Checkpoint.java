@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,7 +23,9 @@ public class Checkpoint {
     @JoinColumn(name = "goal_id")
     private Goal goal;
 
-    private String date;
-    private String status;
-
+    private String title;
+    private String description;
+    private LocalDate dueDate;
+    private String status = "PENDING"; // PENDING, IN_PROGRESS, COMPLETED, OVERDUE
+    private LocalDate completedDate;
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +27,28 @@ public class Goal {
 
     private String title;
     private String description;
-    private String startDate;
-    private String endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String status = "ACTIVE"; // ACTIVE, COMPLETED, PAUSED, CANCELLED
+    private Integer progress = 0; // 0-100 percentage
 
-    @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "goal", fetch = FetchType.LAZY)
     private List<Checkpoint> checkpoints = new ArrayList<>();
 
     public void setUser(Users users) {
         this.users = users;
+    }
+
+    public void calculateProgress() {
+        if (checkpoints.isEmpty()) {
+            this.progress = 0;
+            return;
+        }
+        
+        long completedCheckpoints = checkpoints.stream()
+                .filter(checkpoint -> "COMPLETED".equals(checkpoint.getStatus()))
+                .count();
+        
+        this.progress = (int) ((completedCheckpoints * 100) / checkpoints.size());
     }
 }

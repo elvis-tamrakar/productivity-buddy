@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -13,4 +14,5 @@ public class BuddyRequestDto {
     private Long senderId;
     private Long receiverId;
     private String status;
+    private LocalDate date;
 }

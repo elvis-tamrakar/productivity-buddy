@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,7 +27,6 @@ public class BuddyRequest {
     @JoinColumn(name = "receiverId")
     private Users receiver;
 
-    private String date;
-    private String status;
-
+    private LocalDate date;
+    private String status; // PENDING, ACCEPTED, REJECTED
 }

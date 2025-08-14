@@ -1,10 +1,12 @@
 package com.example.productivity_app.service;
 
+import com.example.productivity_app.dto.LoginResponseDto;
 import com.example.productivity_app.dto.RegisterDto;
 import com.example.productivity_app.dto.UsersDto;
 import com.example.productivity_app.entity.Users;
 import com.example.productivity_app.mapper.UsersMapper;
 import com.example.productivity_app.repository.UserRepository;
+import com.example.productivity_app.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +16,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final UsersMapper usersMapper;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public UserService(UserRepository userRepository,
                        UsersMapper usersMapper,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.usersMapper = usersMapper;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     public UsersDto getUsersById(Long id) {
@@ -55,13 +60,16 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
-    public UsersDto login(String email, String password) {
+    public LoginResponseDto login(String email, String password) {
         Users user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
 
-        return usersMapper.toDto(user);
+        String token = jwtUtil.generateToken(user.getEmail(), user.getId());
+        UsersDto userDto = usersMapper.toDto(user);
+        
+        return new LoginResponseDto(token, userDto);
     }
 }

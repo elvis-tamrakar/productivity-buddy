@@ -33,4 +33,28 @@ public class GoalController {
                 .map(goalMapper::toDto)
                 .collect(Collectors.toList()));
     }
+
+    @GetMapping("/{goalId}")
+    public ResponseEntity<GoalDto> getGoalById(@PathVariable Long goalId) {
+        Goal goal = goalService.getGoalById(goalId);
+        return ResponseEntity.ok(goalMapper.toDto(goal));
+    }
+
+    @PutMapping("/{goalId}")
+    public ResponseEntity<GoalDto> updateGoal(@PathVariable Long goalId, @RequestBody Goal goal) {
+        Goal updated = goalService.updateGoal(goalId, goal);
+        return ResponseEntity.ok(goalMapper.toDto(updated));
+    }
+
+    @DeleteMapping("/{goalId}")
+    public ResponseEntity<Void> deleteGoal(@PathVariable Long goalId) {
+        goalService.deleteGoal(goalId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{goalId}/complete")
+    public ResponseEntity<GoalDto> completeGoal(@PathVariable Long goalId) {
+        Goal completed = goalService.completeGoal(goalId);
+        return ResponseEntity.ok(goalMapper.toDto(completed));
+    }
 }

@@ -4,16 +4,16 @@ import com.example.productivity_app.entity.BuddyRequest;
 import com.example.productivity_app.entity.Users;
 import com.example.productivity_app.repository.BuddyRequestRepository;
 import com.example.productivity_app.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class BuddyRequestService {
 
-    private BuddyRequestRepository buddyRequestRepository;
-    private UserRepository userRepository;
+    private final BuddyRequestRepository buddyRequestRepository;
+    private final UserRepository userRepository;
 
     public BuddyRequestService(BuddyRequestRepository buddyRequestRepository,
                                UserRepository userRepository) {
@@ -26,6 +26,11 @@ public class BuddyRequestService {
             throw new IllegalArgumentException("Cannot send request to yourself");
         }
 
+        // Check if request already exists
+        if (buddyRequestRepository.existsByRequester_IdAndReceiver_Id(requesterId, receiverId)) {
+            throw new IllegalArgumentException("Buddy request already exists");
+        }
+
         Users requester = userRepository.findById(requesterId)
                 .orElseThrow(() -> new RuntimeException("Requester not found"));
         Users receiver = userRepository.findById(receiverId)
@@ -35,10 +40,52 @@ public class BuddyRequestService {
         request.setRequester(requester);
         request.setReceiver(receiver);
         request.setStatus("PENDING");
-        request.setDate(LocalDate.now().toString());
+        request.setDate(LocalDate.now());
 
         return buddyRequestRepository.save(request);
     }
 
+    public BuddyRequest acceptRequest(Long requestId, Long receiverId) {
+        BuddyRequest request = buddyRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
 
+        if (request.getReceiver().getId() != receiverId) {
+            throw new IllegalArgumentException("You can only accept requests sent to you");
+        }
+
+        if (!"PENDING".equals(request.getStatus())) {
+            throw new IllegalArgumentException("Request is not pending");
+        }
+
+        request.setStatus("ACCEPTED");
+        return buddyRequestRepository.save(request);
+    }
+
+    public BuddyRequest rejectRequest(Long requestId, Long receiverId) {
+        BuddyRequest request = buddyRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+
+        if (request.getReceiver().getId() != receiverId) {
+            throw new IllegalArgumentException("You can only reject requests sent to you");
+        }
+
+        if (!"PENDING".equals(request.getStatus())) {
+            throw new IllegalArgumentException("Request is not pending");
+        }
+
+        request.setStatus("REJECTED");
+        return buddyRequestRepository.save(request);
+    }
+
+    public List<BuddyRequest> getPendingRequestsForUser(Long userId) {
+        return buddyRequestRepository.findByReceiver_IdAndStatus(userId, "PENDING");
+    }
+
+    public List<BuddyRequest> getSentRequestsForUser(Long userId) {
+        return buddyRequestRepository.findByRequester_Id(userId);
+    }
+
+    public List<BuddyRequest> getAcceptedBuddiesForUser(Long userId) {
+        return buddyRequestRepository.findByUserIdAndStatus(userId, "ACCEPTED");
+    }
 }

@@ -1,10 +1,12 @@
 package com.example.productivity_app.controller;
 
 import com.example.productivity_app.dto.LoginRequestDto;
+import com.example.productivity_app.dto.LoginResponseDto;
 import com.example.productivity_app.dto.RegisterDto;
 import com.example.productivity_app.dto.UsersDto;
 import com.example.productivity_app.entity.Users;
 import com.example.productivity_app.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,16 +21,16 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UsersDto> createUser(@RequestBody RegisterDto registerDto) {
+    public ResponseEntity<UsersDto> createUser(@Valid @RequestBody RegisterDto registerDto) {
         UsersDto created = userService.createUser(registerDto);
         return ResponseEntity.ok(created);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UsersDto> loginUser(@RequestBody LoginRequestDto loginRequest) {
+    public ResponseEntity<LoginResponseDto> loginUser(@Valid @RequestBody LoginRequestDto loginRequest) {
         try {
-            UsersDto user = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
-            return ResponseEntity.ok(user);
+            LoginResponseDto response = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(401).build(); // Unauthorized
         }
@@ -45,7 +47,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsersDto> updateUser(@PathVariable long id, @RequestBody UsersDto dto) {
+    public ResponseEntity<UsersDto> updateUser(@PathVariable long id, @Valid @RequestBody UsersDto dto) {
         UsersDto updated = userService.updateUser(id, dto);
         return ResponseEntity.ok(updated);
     }

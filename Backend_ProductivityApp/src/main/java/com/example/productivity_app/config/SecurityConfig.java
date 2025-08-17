@@ -29,6 +29,7 @@ public class SecurityConfig {
                         .requestMatchers("/buddies/**").permitAll() // Allow buddy requests without auth for now
                         .requestMatchers("/goals/**").permitAll() // Allow goals without auth for now
                         .requestMatchers("/checkpoints/**").permitAll() // Allow checkpoints without auth for now
+                        .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Swagger endpoints
                         .anyRequest().permitAll() // Allow all other endpoints
                 )
                 .sessionManagement(session -> session

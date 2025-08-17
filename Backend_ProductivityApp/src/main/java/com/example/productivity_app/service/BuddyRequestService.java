@@ -21,17 +21,17 @@ public class BuddyRequestService {
         this.userRepository = userRepository;
     }
 
-    public BuddyRequest sendRequest(Long requesterId, Long receiverId) {
-        if (requesterId.equals(receiverId)) {
+    public BuddyRequest sendRequest(Long senderId, Long receiverId) {
+        if (senderId.equals(receiverId)) {
             throw new IllegalArgumentException("Cannot send request to yourself");
         }
 
         // Check if request already exists
-        if (buddyRequestRepository.existsByRequester_IdAndReceiver_Id(requesterId, receiverId)) {
+        if (buddyRequestRepository.existsByRequester_IdAndReceiver_Id(senderId, receiverId)) {
             throw new IllegalArgumentException("Buddy request already exists");
         }
 
-        Users requester = userRepository.findById(requesterId)
+        Users requester = userRepository.findById(senderId)
                 .orElseThrow(() -> new RuntimeException("Requester not found"));
         Users receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new RuntimeException("Receiver not found"));

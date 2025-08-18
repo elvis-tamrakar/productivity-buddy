@@ -1,0 +1,11 @@
+@PostMapping("/send")
+    public ResponseEntity<BuddyRequestDto> sendBuddyRequest(@RequestBody BuddyRequest request) {
+        return ResponseEntity.ok(buddyRequestMapper.toDto(buddyRequestService.sendRequest(request)));
+    }
+}
+
+ @PostMapping("/{goalId}")
+    public ResponseEntity<CheckpointDto> addCheckpoint(@PathVariable Long goalId, @RequestBody Checkpoint checkpoint) {
+        Checkpoint created = checkpointService.addCheckpoint(goalId, checkpoint);
+        return ResponseEntity.ok(checkpointMapper.toDto(created));
+    }
